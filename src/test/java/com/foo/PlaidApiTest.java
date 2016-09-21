@@ -2,10 +2,12 @@ package com.foo;
 
 import com.plaid.client.PlaidClients;
 import com.plaid.client.PlaidUserClient;
+import com.plaid.client.response.AccountsResponse;
 import com.plaid.client.response.PlaidUserResponse;
 import com.plaid.client.response.Transaction;
 import com.plaid.client.response.TransactionsResponse;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +25,28 @@ public class PlaidApiTest {
 	@Autowired
 	private PlaidApiService plaidApiService;
 
-	@Test
-	public void testGetTransactions() {
+	private String accessToken = null;
+
+	@Before
+	public void setup(){
 		// Initialize a Plaid client with your client_id and secret
 		PlaidUserClient plaidUserClient = PlaidClients.testUserClient("test_id", "test_secret");
 
 		// Exchange the Link public_token ("test,bofa,connected") for an API access_token
 		PlaidUserResponse response = plaidUserClient.exchangeToken("test,bofa,connected");
-		String accessToken = response.getAccessToken();
+		accessToken = response.getAccessToken();
+	}
 
+	@Test
+	public void testGetTransactions() {
 		TransactionsResponse transactions = plaidApiService.getTransactions(accessToken);
 		Assert.assertNotNull(transactions);
+	}
+
+	@Test
+	public void testGetAccountBalance() {
+		AccountsResponse accountBalance = plaidApiService.getAccountBalance(accessToken);
+		Assert.assertNotNull(accountBalance);
 	}
 
 }
